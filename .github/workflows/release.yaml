@@ -3,7 +3,7 @@ name: Publish Helm Charts
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'  # semantic version tags
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   release:
@@ -11,17 +11,14 @@ jobs:
     permissions:
       contents: write
     steps:
-      # Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Set up Helm
       - name: Set up Helm
         uses: azure/setup-helm@v4
 
-      # Package charts into versioned subfolder
       - name: Package charts
         run: |
           VERSION="${GITHUB_REF#refs/tags/}"
@@ -30,7 +27,6 @@ jobs:
             helm package "$chart" --destination "docs/$VERSION/"
           done
 
-      # Prepare gh-pages branch
       - name: Prepare gh-pages branch
         run: |
           git fetch origin gh-pages || true
@@ -41,37 +37,28 @@ jobs:
             git rm -rf .
           fi
 
-      # Merge new chart packages into gh-pages docs
-      - name: Merge new charts into Helm repo
+      - name: Merge charts into Helm repo index
         run: |
-          VERSION="${GITHUB_REF#refs/tags/}"
+          # Collect all .tgz files from all version subfolders
+          CHART_FILES=$(find docs -mindepth 1 -maxdepth 1 -type d -exec find {} -name '*.tgz' \;)
 
-          # Pull new chart packages from the tag commit into gh-pages
-          git checkout $GITHUB_REF -- docs/$VERSION/*.tgz || true
-
-          # Copy to root docs folder for helm indexing
-          cp docs/$VERSION/*.tgz docs/
-
-          # Merge with existing index.yaml if it exists
+          # Generate or merge index.yaml
           if [ -f docs/index.yaml ]; then
-            helm repo index docs --merge docs/index.yaml --url https://john-ghatas.github.io/helmhub
+            helm repo index docs --merge docs/index.yaml --url https://john-ghatas.github.io/helmhub $CHART_FILES
           else
-            helm repo index docs --url https://john-ghatas.github.io/helmhub
+            helm repo index docs --url https://john-ghatas.github.io/helmhub $CHART_FILES
           fi
 
-      # Configure Git
       - name: Configure Git
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-      # Commit changes
       - name: Commit changes
         run: |
           git add docs
           git commit -m "docs: helm chart release $GITHUB_REF" || echo "No changes to commit"
 
-      # Push to gh-pages
       - name: Push to gh-pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
