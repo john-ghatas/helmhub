@@ -1,0 +1,11 @@
+{{- if .Values.configmaps }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "app-template.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+data:
+  {{- range $key, $value := .Values.configmaps }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}

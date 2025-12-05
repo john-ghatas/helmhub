@@ -21,7 +21,7 @@ jobs:
           done
       - name: Reindex Helm repo
         run: |
-          helm repo index docs --url https://<your-username>.github.io/k8s-templates
+          helm repo index docs --url https://john-ghatas.github.io/helmhub
       - name: Commit and push
         run: |
           git config --global user.email "action@github.com"

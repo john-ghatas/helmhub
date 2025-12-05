@@ -9,9 +9,9 @@ name: whoami
 version: 1.0.0
 
 dependencies:
-  - name: app-template
+  - name: helm-base
     version: ">=1.0.0"
-    repository: "https://<your-username>.github.io/k8s-templates"
+    repository: "https://john-ghatas.github.io/helmhub"
 ```
 
 **whoami/values.yaml**
