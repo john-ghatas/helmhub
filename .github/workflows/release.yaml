@@ -10,8 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
-      # Checkout repo
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -21,18 +22,28 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v4
 
-      # Package charts
-      - name: Package all charts
+      # Package charts into versioned subfolder
+      - name: Package charts
         run: |
-          mkdir -p docs
+          VERSION="${GITHUB_REF#refs/tags/}"
+          mkdir -p "docs/$VERSION"
           for chart in charts/*; do
-            helm package "$chart" --destination docs/
+            helm package "$chart" --destination "docs/$VERSION/"
           done
 
-      # Reindex Helm repo
+      # Reindex Helm repo and include all historical versions
       - name: Reindex Helm repo
         run: |
-          helm repo index docs --url https://john-ghatas.github.io/helmhub
+          # Prepare a flat directory containing all .tgz from all versions
+          mkdir -p all-charts
+          find docs -type f -name "*.tgz" -exec cp {} all-charts/ \; || true
+
+          # Generate index.yaml from all charts
+          helm repo index all-charts --url https://john-ghatas.github.io/helmhub
+
+          # Replace docs folder with this unified chart repo
+          rm -rf docs
+          mv all-charts docs
 
       # Configure Git
       - name: Configure Git
@@ -40,7 +51,7 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-      # Create orphan branch locally for gh-pages
+      # Prepare gh-pages branch
       - name: Prepare gh-pages branch
         run: |
           if git show-ref --verify --quiet refs/heads/gh-pages; then
@@ -50,7 +61,7 @@ jobs:
             git rm -rf .
           fi
 
-      # Copy docs to branch
+      # Copy docs and commit
       - name: Add docs and commit
         run: |
           cp -r docs/* .
