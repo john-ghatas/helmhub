@@ -21,18 +21,43 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v4
 
-      # Package charts
-      - name: Package all charts
+      # Package charts into versioned subfolder
+      - name: Package charts
         run: |
-          mkdir -p docs
+          VERSION="${GITHUB_REF#refs/tags/}"
+          mkdir -p "docs/$VERSION"
           for chart in charts/*; do
-            helm package "$chart" --destination docs/
+            helm package "$chart" --destination "docs/$VERSION/"
           done
 
-      # Reindex Helm repo
-      - name: Reindex Helm repo
+      # Prepare gh-pages branch
+      - name: Prepare gh-pages branch
         run: |
-          helm repo index docs --url https://john-ghatas.github.io/helmhub
+          git fetch origin gh-pages || true
+          if git rev-parse --verify gh-pages; then
+            git checkout gh-pages
+          else
+            git checkout --orphan gh-pages
+            git rm -rf .
+          fi
+
+      # Merge new chart packages into gh-pages docs
+      - name: Merge new charts into Helm repo
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+
+          # Pull new chart packages from the tag commit into gh-pages
+          git checkout $GITHUB_REF -- docs/$VERSION/*.tgz || true
+
+          # Copy to root docs folder for helm indexing
+          cp docs/$VERSION/*.tgz docs/
+
+          # Merge with existing index.yaml if it exists
+          if [ -f docs/index.yaml ]; then
+            helm repo index docs --merge docs/index.yaml --url https://john-ghatas.github.io/helmhub
+          else
+            helm repo index docs --url https://john-ghatas.github.io/helmhub
+          fi
 
       # Configure Git
       - name: Configure Git
@@ -40,21 +65,10 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-      # Create orphan branch locally for gh-pages
-      - name: Prepare gh-pages branch
+      # Commit changes
+      - name: Commit changes
         run: |
-          if git show-ref --verify --quiet refs/heads/gh-pages; then
-            git checkout gh-pages
-          else
-            git checkout --orphan gh-pages
-            git rm -rf .
-          fi
-
-      # Copy docs to branch
-      - name: Add docs and commit
-        run: |
-          cp -r docs/* .
-          git add .
+          git add docs
           git commit -m "docs: helm chart release $GITHUB_REF" || echo "No changes to commit"
 
       # Push to gh-pages
