@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      # Checkout repo
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -41,23 +41,33 @@ jobs:
             git rm -rf .
           fi
 
-      # Merge new chart packages into gh-pages docs
+      # Merge new chart packages into Helm repo
       - name: Merge new charts into Helm repo
         run: |
           VERSION="${GITHUB_REF#refs/tags/}"
 
-          # Pull new chart packages from the tag commit into gh-pages
-          git checkout $GITHUB_REF -- docs/$VERSION/*.tgz || true
+          # Ensure root docs folder exists
+          mkdir -p docs
 
-          # Copy to root docs folder for helm indexing
-          cp docs/$VERSION/*.tgz docs/
+          # Temporary folder for indexing
+          mkdir -p docs-temp
+
+          # Copy all existing .tgz packages from docs/ to docs-temp
+          find docs -maxdepth 1 -name "*.tgz" -exec cp {} docs-temp/ \;
+
+          # Copy new chart(s) from this tag
+          cp docs/$VERSION/*.tgz docs-temp/
 
           # Merge with existing index.yaml if it exists
           if [ -f docs/index.yaml ]; then
-            helm repo index docs --merge docs/index.yaml --url https://john-ghatas.github.io/helmhub
+            helm repo index docs-temp --merge docs/index.yaml --url https://john-ghatas.github.io/helmhub
           else
-            helm repo index docs --url https://john-ghatas.github.io/helmhub
+            helm repo index docs-temp --url https://john-ghatas.github.io/helmhub
           fi
+
+          # Move updated index.yaml back to docs/
+          mv docs-temp/index.yaml docs/
+          rm -rf docs-temp
 
       # Configure Git
       - name: Configure Git
