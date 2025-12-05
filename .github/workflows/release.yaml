@@ -13,7 +13,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # fetch full history for branch updates
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
@@ -36,6 +37,9 @@ jobs:
 
       - name: Push Helm charts to gh-pages
         run: |
+          # Configure remote to use GITHUB_TOKEN
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/john-ghatas/helmhub.git
+
           # Create or switch to gh-pages branch
           git fetch origin gh-pages || true
           git checkout gh-pages || git checkout --orphan gh-pages
@@ -44,7 +48,7 @@ jobs:
           git --work-tree=docs add --all
           
           # Commit changes
-          git --work-tree=docs commit -m "Helm chart release $GITHUB_REF" || echo "No changes to commit"
+          git --work-tree=docs commit -m "docs: helm chart release $GITHUB_REF" || echo "No changes to commit"
           
           # Push to gh-pages branch
           git push origin gh-pages
