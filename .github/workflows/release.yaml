@@ -3,29 +3,48 @@ name: Publish Helm Charts
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'  # new numeric-only semantic version
+      - '[0-9]+.[0-9]+.[0-9]+'  # semantic version tags
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # fetch full history for branch updates
+
       - name: Set up Helm
         uses: azure/setup-helm@v4
+
       - name: Package all charts
         run: |
           mkdir -p docs
           for chart in charts/*; do
             helm package "$chart" --destination docs/
           done
+
       - name: Reindex Helm repo
         run: |
           helm repo index docs --url https://john-ghatas.github.io/helmhub
-      - name: Commit and push
+
+      - name: Configure Git
         run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git add docs
-          git commit -m "Helm chart release $GITHUB_REF" || echo "No changes to commit"
-          git push
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+
+      - name: Push Helm charts to gh-pages
+        run: |
+          # Create or switch to gh-pages branch
+          git fetch origin gh-pages || true
+          git checkout gh-pages || git checkout --orphan gh-pages
+          
+          # Copy generated docs to the working tree
+          git --work-tree=docs add --all
+          
+          # Commit changes
+          git --work-tree=docs commit -m "Helm chart release $GITHUB_REF" || echo "No changes to commit"
+          
+          # Push to gh-pages branch
+          git push origin gh-pages
