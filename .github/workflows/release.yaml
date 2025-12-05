@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      # Checkout repo
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -21,18 +21,21 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v4
 
-      # Package charts
-      - name: Package all charts
+      # Package charts into versioned subfolder
+      - name: Package charts
         run: |
-          mkdir -p docs
+          VERSION="${GITHUB_REF#refs/tags/}"
+          mkdir -p "docs/$VERSION"
           for chart in charts/*; do
-            helm package "$chart" --destination docs/
+            helm package "$chart" --destination "docs/$VERSION/"
           done
 
-      # Reindex Helm repo
+      # Reindex Helm repo and merge all versions
       - name: Reindex Helm repo
         run: |
-          helm repo index docs --url https://john-ghatas.github.io/helmhub
+          # Find all version subfolders and merge into a single index.yaml
+          helm repo index docs --url https://john-ghatas.github.io/helmhub \
+            $(find docs -mindepth 1 -maxdepth 1 -type d)
 
       # Configure Git
       - name: Configure Git
@@ -40,7 +43,7 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-      # Create orphan branch locally for gh-pages
+      # Prepare gh-pages branch
       - name: Prepare gh-pages branch
         run: |
           if git show-ref --verify --quiet refs/heads/gh-pages; then
@@ -50,7 +53,7 @@ jobs:
             git rm -rf .
           fi
 
-      # Copy docs to branch
+      # Copy versioned docs and commit
       - name: Add docs and commit
         run: |
           cp -r docs/* .
