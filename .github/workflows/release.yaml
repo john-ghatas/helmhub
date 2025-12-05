@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: write
     steps:
+
       # Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,23 +42,27 @@ jobs:
             git rm -rf .
           fi
 
-      # Merge new chart packages into gh-pages docs
+      # Copy new chart packages to root docs folder for Helm indexing
       - name: Merge new charts into Helm repo
         run: |
           VERSION="${GITHUB_REF#refs/tags/}"
 
-          # Pull new chart packages from the tag commit into gh-pages
-          git checkout $GITHUB_REF -- docs/$VERSION/*.tgz || true
+          # Ensure the root docs folder exists
+          mkdir -p docs
 
-          # Copy to root docs folder for helm indexing
-          cp docs/$VERSION/*.tgz docs/
+          # Copy new chart(s) to root docs folder temporarily
+          cp docs/$VERSION/*.tgz docs-temp/
 
           # Merge with existing index.yaml if it exists
           if [ -f docs/index.yaml ]; then
-            helm repo index docs --merge docs/index.yaml --url https://john-ghatas.github.io/helmhub
+            helm repo index docs-temp --merge docs/index.yaml --url https://john-ghatas.github.io/helmhub
           else
-            helm repo index docs --url https://john-ghatas.github.io/helmhub
+            helm repo index docs-temp --url https://john-ghatas.github.io/helmhub
           fi
+
+          # Move updated index.yaml back to docs/
+          mv docs-temp/index.yaml docs/
+          rm -rf docs-temp
 
       # Configure Git
       - name: Configure Git
@@ -65,10 +70,10 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-      # Commit changes
+      # Commit new version subfolder and updated index
       - name: Commit changes
         run: |
-          git add docs
+          git add "docs/$VERSION" docs/index.yaml
           git commit -m "docs: helm chart release $GITHUB_REF" || echo "No changes to commit"
 
       # Push to gh-pages
