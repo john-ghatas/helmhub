@@ -2,12 +2,21 @@ apiVersion: v1
 entries:
   helm-base:
   - apiVersion: v2
-    created: "2025-12-05T23:54:57.294053256Z"
+    created: "2025-12-06T00:13:41.591844631Z"
+    description: Base library template for all tenant apps
+    digest: 7b267feeed65a7852597e3397a417242c25ca7d834dea84dce431d3968d80749
+    name: helm-base
+    type: library
+    urls:
+    - https://john-ghatas.github.io/helmhub/helm-base-1.0.18.tgz
+    version: 1.0.18
+  - apiVersion: v2
+    created: "2025-12-06T00:13:41.592692076Z"
     description: Base library template for all tenant apps
     digest: 9aeec57e8575a44c091cee6152f54d19a4522155d62d444786837aa19ef435f4
     name: helm-base
     type: library
     urls:
-    - https://john-ghatas.github.io/helmhub/helm-base-1.0.16.tgz
+    - https://john-ghatas.github.io/helmhub/1.0.16/helm-base-1.0.16.tgz
     version: 1.0.16
-generated: "2025-12-05T23:54:57.293653081Z"
+generated: "2025-12-06T00:13:41.591460787Z"
