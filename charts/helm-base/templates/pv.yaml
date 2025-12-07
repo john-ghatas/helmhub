@@ -13,5 +13,5 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     server: {{ .Values.persistence.nfs.server }}
-    path: {{ .Values.persistence.nfs.path }}/{{ .Values.persistence.subPath }}
+    path: {{ .Values.persistence.nfs.path }}
 {{- end }}
