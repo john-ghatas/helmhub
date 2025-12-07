@@ -74,6 +74,14 @@ containerSecurity:
 seccompProfile:
   enabled: true                 # enable seccomp profile
   type: RuntimeDefault          # modern seccomp type
+
+resources:
+  requests:
+    cpu: "100m"                 # requested CPU (used for HPA calculation)
+    memory: "128Mi"             # requested memory
+  limits:
+    cpu: "500m"                 # max CPU
+    memory: "256Mi"             # max memory
 ```
 
 To deploy and upgrade the helm chart use the following commands
