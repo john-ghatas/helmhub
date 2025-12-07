@@ -1,0 +1,8 @@
+apiVersion: v2
+name: whoami
+version: 1.0.0
+
+dependencies:
+  - name: helm-base
+    version: ">=1.0.21"
+    repository: "https://john-ghatas.github.io/helmhub"

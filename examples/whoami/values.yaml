@@ -1,38 +1,21 @@
-# Usage
-To deploy this helm chart the following example application is setup. These files are setup under a seperate repostiory.
-
-
-**whoami/Chart.yaml**
-```yaml
-apiVersion: v2
-name: whoami
-version: 1.0.20
-
-dependencies:
-  - name: helm-base
-    version: ">=1.0.0"
-    repository: "https://john-ghatas.github.io/helmhub"
-```
-
-**whoami/values.yaml**
-```yaml
 image:
   repository: traefik/whoami  # container image repository
   tag: latest                 # container image tag
-  pullPolicy: IfNotPresent    # image pull policy
+  pullPolicy: Always    # image pull policy
 
 service:
   type: LoadBalancer          # service type
   port: 8080                  # service port
   annotations:
-    metallb.universe.tf/loadBalancerIPs: "192.168.50.21"  # static IP for MetalLB
+    metallb.universe.tf/loadBalancerIPs: "10.70.50.231"  # static IP for MetalLB
 
 env:
-  INSTANCE_NAME: "tenant-a-whoami"  # environment variable for tenant identification
+  INSTANCE_NAME: "whoami"  # environment variable for tenant identification
 
 configmaps:
-  LOG_LEVEL: "debug"           # example configmap entries
-  FEATURE_FLAG: "true"
+  HTTP_PROXY: "http://192.168.60.1:3128"
+  HTTPS_PROXY: "http://192.168.60.1:3128"
+  NO_PROXY: "127.0.0.1,localhost,10.0.0.0/8,10.42.0.0/16,10.39.50.0/24,192.168.0.0/16,172.16.0.0/12,*.localhosting.svc,.svc.cluster.local"
 
 sealed:
   PASSWORD: "AgEncryptedPassword=="  # sealed secret for password
@@ -43,8 +26,8 @@ persistence:
   size: 2Gi                    # PVC size
   accessModes:
     - ReadWriteMany            # PVC access mode
-  pvName: "whoami-tenant-a-pv" # PV name
-  subPath: "tenant-a/whoami"   # optional subpath in PV
+  pvName: "whoami-pv" # PV name
+  subPath: "whoami"   # optional subpath in PV
   nfs:
     server: "<nfs-ip>"         # NFS server IP
     path: "/srv/exports"       # NFS export path
@@ -82,14 +65,3 @@ resources:
   limits:
     cpu: "500m"                 # max CPU
     memory: "256Mi"             # max memory
-```
-
-To deploy and upgrade the helm chart use the following commands
-```bash
-helm dependency update ./whoami
-helm dependency build ./whoami
-# helm upgrade --install <helm-install> ./<directory-to-chart> -n <kubernetes-namespace>
-helm upgrade --install whoami ./whoami -n whoami
-```
-
-A template is provided under examples for reference.

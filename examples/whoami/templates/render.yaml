@@ -1,0 +1,173 @@
+{{- /*
+Portfolio app render.yaml
+This template leverages the helm-base library for multi-tenant deployment.
+It dynamically generates Deployment, Service, HPA, ConfigMaps, SealedSecrets, and optional PV/PVC.
+*/ -}}
+
+{{- $root := . -}}
+
+{{/* ---------------- Deployment ---------------- */}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm-base.fullname" $root }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "helm-base.labels" $root | nindent 4 }}
+spec:
+  replicas: {{ .Values.autoscaling.minReplicas | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ include "helm-base.fullname" $root }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "helm-base.fullname" $root }}
+    spec:
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext:
+        runAsNonRoot: {{ .Values.podSecurityContext.runAsNonRoot }}
+        runAsUser: {{ .Values.podSecurityContext.runAsUser }}
+        fsGroup: {{ .Values.podSecurityContext.fsGroup }}
+      {{- end }}
+      containers:
+        - name: {{ include "helm-base.fullname" $root }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- range $key, $val := .Values.env }}
+            - name: {{ $key }}
+              value: "{{ $val }}"
+            {{- end }}
+          resources:
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+          {{- if .Values.containerSecurity.enabled }}
+          securityContext:
+            readOnlyRootFilesystem: {{ .Values.containerSecurity.readOnlyRootFilesystem }}
+            allowPrivilegeEscalation: {{ .Values.containerSecurity.allowPrivilegeEscalation }}
+            capabilities:
+              drop: {{ toYaml .Values.containerSecurity.capabilities.drop | nindent 14 }}
+          {{- end }}
+
+{{- /* ---------------- Service ---------------- */}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "helm-base.fullname" $root }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "helm-base.labels" $root | nindent 4 }}
+  {{- if .Values.service.annotations }}
+  annotations:
+    {{- toYaml .Values.service.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    app: {{ include "helm-base.fullname" $root }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+
+{{- /* ---------------- Horizontal Pod Autoscaler ---------------- */}}
+{{- if .Values.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "helm-base.fullname" $root }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "helm-base.labels" $root | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "helm-base.fullname" $root }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}
+
+{{- /* ---------------- Optional Persistent Volume ---------------- */}}
+{{- if .Values.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.persistence.pvName | default (include "helm-base.fullname" $root) }}
+  labels:
+    {{- include "helm-base.labels" $root | nindent 4 }}
+spec:
+  capacity:
+    storage: {{ .Values.persistence.size }}
+  accessModes:
+    {{- range .Values.persistence.accessModes }}
+    - {{ . }}
+    {{- end }}
+  persistentVolumeReclaimPolicy: Retain
+  nfs:
+    server: {{ .Values.persistence.nfs.server }}
+    path: {{ .Values.persistence.nfs.path }}/{{ .Values.persistence.nfs.subPath }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "helm-base.fullname" $root }}-pvc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "helm-base.labels" $root | nindent 4 }}
+spec:
+  accessModes:
+    {{- range .Values.persistence.accessModes }}
+    - {{ . }}
+    {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.size }}
+{{- end }}
+
+{{- /* ---------------- ConfigMaps ---------------- */}}
+{{- if .Values.configmaps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "helm-base.fullname" $root }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "helm-base.labels" $root | nindent 4 }}
+data:
+  {{- range $key, $val := .Values.configmaps }}
+  {{ $key }}: "{{ $val }}"
+  {{- end }}
+{{- end }}
+
+{{- /* ---------------- SealedSecrets ---------------- */}}
+{{- if .Values.sealed }}
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: {{ include "helm-base.fullname" $root }}-secret
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "helm-base.labels" $root | nindent 4 }}
+spec:
+  encryptedData:
+    {{- range $key, $val := .Values.sealed }}
+    {{ $key }}: {{ $val }}
+    {{- end }}
+{{- end }}
