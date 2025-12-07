@@ -21,3 +21,13 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
+
+{{/* -------------------------------------------- */}}
+{{/* Wrappers for helm-base library compatibility */}}
+{{- define "helm-base.fullname" -}}
+{{ include "app-template.fullname" . }}
+{{- end }}
+
+{{- define "helm-base.labels" -}}
+{{ include "app-template.labels" . }}
+{{- end }}

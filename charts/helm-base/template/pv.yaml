@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ .Values.persistence.pvName | default (include "app-template.fullname" .) }}
+  name: {{ .Values.persistence.pvName | default (include "helm-base.fullname" .) }}
 spec:
   capacity:
     storage: {{ .Values.persistence.size }}

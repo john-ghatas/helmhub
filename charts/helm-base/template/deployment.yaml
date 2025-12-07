@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "app-template.fullname" . }}
+  name: {{ include "helm-base.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "app-template.labels" . | nindent 4 }}
+    {{ include "helm-base.labels" . | nindent 4 }}
 
 spec:
   replicas: {{ .Values.replicaCount | default 1 }}
   selector:
     matchLabels:
-      app: {{ include "app-template.name" . }}
+      app: {{ include "helm-base.name" . }}
 
   template:
     metadata:
       labels:
-        app: {{ include "app-template.name" . }}
+        app: {{ include "helm-base.name" . }}
 
     spec:
 
@@ -70,5 +70,5 @@ spec:
         {{- if .Values.persistence.enabled }}
         - name: data
           persistentVolumeClaim:
-            claimName: {{ include "app-template.fullname" . }}-pvc
+            claimName: {{ include "helm-base.fullname" . }}-pvc
         {{- end }}

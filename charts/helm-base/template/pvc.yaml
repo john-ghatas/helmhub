@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "app-template.fullname" . }}-pvc
+  name: {{ include "helm-base.fullname" . }}-pvc
   namespace: {{ .Release.Namespace }}
 spec:
   accessModes:
@@ -12,7 +12,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.persistence.size }}
-  volumeName: {{ .Values.persistence.pvName | default (include "app-template.fullname" .) }}
+  volumeName: {{ .Values.persistence.pvName | default (include "helm-base.fullname" .) }}
   {{- if .Values.persistence.storageClassName }}
   storageClassName: {{ .Values.persistence.storageClassName }}
   {{- end }}
