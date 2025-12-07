@@ -1,5 +1,5 @@
 apiVersion: v2
 name: helm-base
 description: Base library template for all tenant apps
-version: 1.0.19
+version: 1.0.20
 type: library

@@ -5,27 +5,53 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "app-template.labels" . | nindent 4 }}
+
 spec:
   replicas: {{ .Values.replicaCount | default 1 }}
   selector:
     matchLabels:
       app: {{ include "app-template.name" . }}
+
   template:
     metadata:
       labels:
         app: {{ include "app-template.name" . }}
+
     spec:
+
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext:
+        runAsNonRoot: {{ .Values.podSecurityContext.runAsNonRoot }}
+        runAsUser: {{ .Values.podSecurityContext.runAsUser }}
+        fsGroup: {{ .Values.podSecurityContext.fsGroup }}
+        {{- if .Values.seccompProfile.enabled }}
+        seccompProfile:
+          type: {{ .Values.seccompProfile.type }}
+        {{- end }}
+      {{- end }}
+
       containers:
         - name: app
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          {{- if .Values.containerSecurity.enabled }}
+          securityContext:
+            readOnlyRootFilesystem: {{ .Values.containerSecurity.readOnlyRootFilesystem }}
+            allowPrivilegeEscalation: {{ .Values.containerSecurity.allowPrivilegeEscalation }}
+            capabilities:
+              {{- toYaml .Values.containerSecurity.capabilities | nindent 14 }}
+          {{- end }}
+
           env:
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+
           ports:
             - containerPort: {{ .Values.service.port }}
+
           volumeMounts:
             {{- if .Values.persistence.enabled }}
             - name: data
@@ -34,6 +60,7 @@ spec:
               subPath: {{ .Values.persistence.subPath | quote }}
               {{- end }}
             {{- end }}
+
       volumes:
         {{- if .Values.persistence.enabled }}
         - name: data
