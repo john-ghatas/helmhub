@@ -1,7 +1,7 @@
 {{- /*
 Portfolio app render.yaml
-This template leverages the helm-base library for multi-tenant deployment.
-It dynamically generates Deployment, Service, HPA, ConfigMaps, SealedSecrets, and optional PV/PVC.
+Helm chart template fully safe for VSCode/IntelliSense.
+Supports optional persistence (NFS), subPath, mountOptions, storageClass, ConfigMaps, SealedSecrets.
 */ -}}
 
 {{- $root := . -}}
@@ -26,35 +26,51 @@ spec:
     spec:
       {{- if .Values.podSecurityContext.enabled }}
       securityContext:
-        runAsNonRoot: {{ .Values.podSecurityContext.runAsNonRoot }}
-        runAsUser: {{ .Values.podSecurityContext.runAsUser }}
-        fsGroup: {{ .Values.podSecurityContext.fsGroup }}
+        runAsNonRoot: {{ .Values.podSecurityContext.runAsNonRoot | default true }}
+        runAsUser: {{ .Values.podSecurityContext.runAsUser | default 1000 }}
+        fsGroup: {{ .Values.podSecurityContext.fsGroup | default 1000 }}
       {{- end }}
+
       containers:
         - name: {{ include "helm-base.fullname" $root }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.image.repository | default "nginx" }}:{{ .Values.image.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           env:
-            {{- range $key, $val := .Values.env }}
+            {{- range $key, $val := .Values.env | default dict }}
             - name: {{ $key }}
               value: "{{ $val }}"
             {{- end }}
           resources:
             limits:
-              cpu: {{ .Values.resources.limits.cpu }}
-              memory: {{ .Values.resources.limits.memory }}
+              cpu: {{ .Values.resources.limits.cpu | default "500m" }}
+              memory: {{ .Values.resources.limits.memory | default "256Mi" }}
             requests:
-              cpu: {{ .Values.resources.requests.cpu }}
-              memory: {{ .Values.resources.requests.memory }}
+              cpu: {{ .Values.resources.requests.cpu | default "250m" }}
+              memory: {{ .Values.resources.requests.memory | default "128Mi" }}
           {{- if .Values.containerSecurity.enabled }}
           securityContext:
-            readOnlyRootFilesystem: {{ .Values.containerSecurity.readOnlyRootFilesystem }}
-            allowPrivilegeEscalation: {{ .Values.containerSecurity.allowPrivilegeEscalation }}
+            readOnlyRootFilesystem: {{ .Values.containerSecurity.readOnlyRootFilesystem | default true }}
+            allowPrivilegeEscalation: {{ .Values.containerSecurity.allowPrivilegeEscalation | default false }}
             capabilities:
-              drop: {{ toYaml .Values.containerSecurity.capabilities.drop | nindent 14 }}
+              drop: {{ toYaml (.Values.containerSecurity.capabilities.drop | default (list "ALL")) | nindent 14 }}
+          {{- end }}
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              {{- if .Values.persistence.subPath }}
+              subPath: {{ .Values.persistence.subPath | quote }}
+              {{- end }}
           {{- end }}
 
-{{- /* ---------------- Service ---------------- */}}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "helm-base.fullname" $root }}-pvc
+      {{- end }}
+
+{{/* ---------------- Service ---------------- */}}
 ---
 apiVersion: v1
 kind: Service
@@ -68,14 +84,14 @@ metadata:
     {{- toYaml .Values.service.annotations | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.type | default "ClusterIP" }}
   selector:
     app: {{ include "helm-base.fullname" $root }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.port }}
+    - port: {{ .Values.service.port | default 80 }}
+      targetPort: {{ .Values.service.port | default 80 }}
 
-{{- /* ---------------- Horizontal Pod Autoscaler ---------------- */}}
+{{/* ---------------- HPA ---------------- */}}
 {{- if .Values.autoscaling.enabled }}
 ---
 apiVersion: autoscaling/v2
@@ -90,18 +106,18 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: {{ include "helm-base.fullname" $root }}
-  minReplicas: {{ .Values.autoscaling.minReplicas }}
-  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  minReplicas: {{ .Values.autoscaling.minReplicas | default 1 }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas | default 1 }}
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage | default 70 }}
 {{- end }}
 
-{{- /* ---------------- Optional Persistent Volume ---------------- */}}
+{{/* ---------------- Optional PV/PVC ---------------- */}}
 {{- if .Values.persistence.enabled }}
 ---
 apiVersion: v1
@@ -112,15 +128,21 @@ metadata:
     {{- include "helm-base.labels" $root | nindent 4 }}
 spec:
   capacity:
-    storage: {{ .Values.persistence.size }}
+    storage: {{ .Values.persistence.size | default "2Gi" }}
   accessModes:
-    {{- range .Values.persistence.accessModes }}
+    {{- range .Values.persistence.accessModes | default (list "ReadWriteOnce") }}
     - {{ . }}
     {{- end }}
   persistentVolumeReclaimPolicy: Retain
   nfs:
-    server: {{ .Values.persistence.nfs.server }}
-    path: {{ .Values.persistence.nfs.path }}/{{ .Values.persistence.nfs.subPath }}
+    server: {{ .Values.persistence.nfs.server | default "nfs-server" }}
+    path: {{ .Values.persistence.nfs.path | default "/srv/exports" }}
+  {{- if .Values.persistence.nfs.mountOptions }}
+  mountOptions:
+    {{- range .Values.persistence.nfs.mountOptions | default (list "vers=4") }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -131,15 +153,17 @@ metadata:
     {{- include "helm-base.labels" $root | nindent 4 }}
 spec:
   accessModes:
-    {{- range .Values.persistence.accessModes }}
+    {{- range .Values.persistence.accessModes | default (list "ReadWriteOnce") }}
     - {{ . }}
     {{- end }}
   resources:
     requests:
-      storage: {{ .Values.persistence.size }}
+      storage: {{ .Values.persistence.size | default "2Gi" }}
+  storageClassName: {{ .Values.persistence.storageClass | default "" | quote }}
+  volumeName: {{ .Values.persistence.pvName | default (include "helm-base.fullname" $root) }}
 {{- end }}
 
-{{- /* ---------------- ConfigMaps ---------------- */}}
+{{/* ---------------- ConfigMaps ---------------- */}}
 {{- if .Values.configmaps }}
 ---
 apiVersion: v1
@@ -150,12 +174,12 @@ metadata:
   labels:
     {{- include "helm-base.labels" $root | nindent 4 }}
 data:
-  {{- range $key, $val := .Values.configmaps }}
+  {{- range $key, $val := .Values.configmaps | default dict }}
   {{ $key }}: "{{ $val }}"
   {{- end }}
 {{- end }}
 
-{{- /* ---------------- SealedSecrets ---------------- */}}
+{{/* ---------------- SealedSecrets ---------------- */}}
 {{- if .Values.sealed }}
 ---
 apiVersion: bitnami.com/v1alpha1
@@ -167,7 +191,7 @@ metadata:
     {{- include "helm-base.labels" $root | nindent 4 }}
 spec:
   encryptedData:
-    {{- range $key, $val := .Values.sealed }}
+    {{- range $key, $val := .Values.sealed | default dict }}
     {{ $key }}: {{ $val }}
     {{- end }}
 {{- end }}
