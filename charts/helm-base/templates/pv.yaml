@@ -13,5 +13,9 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   nfs:
     server: {{ .Values.persistence.nfs.server }}
-    path: {{ .Values.persistence.nfs.path }}
+    path: {{ .Values.persistence.nfs.path }}   # full export, no subPath
+  mountOptions:
+    {{- range .Values.persistence.nfs.mountOptions | default (list "vers=4") }}
+    - {{ . }}
+    {{- end }}
 {{- end }}
