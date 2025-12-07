@@ -2,7 +2,16 @@ apiVersion: v1
 entries:
   helm-base:
   - apiVersion: v2
-    created: "2025-12-07T10:55:23.047579336Z"
+    created: "2025-12-07T10:58:15.560147853Z"
+    description: Base library template for all tenant apps
+    digest: ab3ee97bc38d1d4710ffa9ebb524cc4f9c082941e3a81edb4809ebab594f03a7
+    name: helm-base
+    type: library
+    urls:
+    - https://john-ghatas.github.io/helmhub/helm-base-1.0.21.tgz
+    version: 1.0.21
+  - apiVersion: v2
+    created: "2025-12-07T10:58:15.559871219Z"
     description: Base library template for all tenant apps
     digest: 0801309d6d469ebec419ef873b355f3e2a886befa7b5a5231f281bcb9756e81f
     name: helm-base
@@ -11,7 +20,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.20.tgz
     version: 1.0.20
   - apiVersion: v2
-    created: "2025-12-07T10:55:23.047335932Z"
+    created: "2025-12-07T10:58:15.559628057Z"
     description: Base library template for all tenant apps
     digest: c47d84bcc529a292c9abf17d430c4c83888cf738d0ae7eed2cc9a03d32b757c1
     name: helm-base
@@ -20,7 +29,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.19.tgz
     version: 1.0.19
   - apiVersion: v2
-    created: "2025-12-07T10:55:23.047062053Z"
+    created: "2025-12-07T10:58:15.55935537Z"
     description: Base library template for all tenant apps
     digest: 7b267feeed65a7852597e3397a417242c25ca7d834dea84dce431d3968d80749
     name: helm-base
@@ -29,7 +38,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.18.tgz
     version: 1.0.18
   - apiVersion: v2
-    created: "2025-12-07T10:55:23.047852634Z"
+    created: "2025-12-07T10:58:15.56044723Z"
     description: Base library template for all tenant apps
     digest: 9aeec57e8575a44c091cee6152f54d19a4522155d62d444786837aa19ef435f4
     name: helm-base
@@ -37,4 +46,4 @@ entries:
     urls:
     - https://john-ghatas.github.io/helmhub/1.0.16/helm-base-1.0.16.tgz
     version: 1.0.16
-generated: "2025-12-07T10:55:23.046611074Z"
+generated: "2025-12-07T10:58:15.558880827Z"
