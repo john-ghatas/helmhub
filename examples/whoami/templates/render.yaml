@@ -1,6 +1,5 @@
 {{- /*
-Portfolio app render.yaml
-Helm chart template fully safe for VSCode/IntelliSense.
+Generic app render.yaml
 Supports optional persistence (NFS), subPath, mountOptions, storageClass, ConfigMaps, SealedSecrets.
 */ -}}
 
