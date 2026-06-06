@@ -10,15 +10,13 @@ spec:
   replicas: {{ .Values.replicaCount | default 1 }}
   selector:
     matchLabels:
-      app: {{ include "helm-base.name" . }}
-
+{{- include "helm-base.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ include "helm-base.name" . }}
+{{- include "helm-base.selectorLabels" . | nindent 8 }}
 
     spec:
-
       {{- if .Values.podSecurityContext.enabled }}
       securityContext:
         runAsNonRoot: {{ .Values.podSecurityContext.runAsNonRoot }}
@@ -43,11 +41,14 @@ spec:
               {{- toYaml .Values.containerSecurity.capabilities | nindent 14 }}
           {{- end }}
 
+
+          {{- with .Values.env }}
           env:
-            {{- range $key, $value := .Values.env }}
+          {{- range $key, $value := . }}
             - name: {{ $key }}
               value: {{ $value | quote }}
-            {{- end }}
+          {{- end }}
+          {{- end }}
 
           ports:
             - containerPort: {{ .Values.service.port }}
@@ -57,18 +58,18 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
 
+          {{- if .Values.persistence.enabled }}
           volumeMounts:
-            {{- if .Values.persistence.enabled }}
             - name: data
               mountPath: /data
               {{- if .Values.persistence.subPath }}
               subPath: {{ .Values.persistence.subPath | quote }}
               {{- end }}
-            {{- end }}
+          {{- end }}
 
+      {{- if .Values.persistence.enabled }}
       volumes:
-        {{- if .Values.persistence.enabled }}
         - name: data
           persistentVolumeClaim:
             claimName: {{ include "helm-base.fullname" . }}-pvc
-        {{- end }}
+      {{- end }}

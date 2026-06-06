@@ -5,12 +5,17 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "helm-base.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
   annotations:
-    {{- toYaml .Values.service.annotations | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
 spec:
   type: {{ .Values.service.type }}
+
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort | default .Values.service.port }}
+
   selector:
-    app: {{ include "helm-base.name" . }}
+{{ include "helm-base.selectorLabels" . | nindent 4 }}
