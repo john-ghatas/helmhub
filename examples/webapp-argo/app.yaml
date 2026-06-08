@@ -1,0 +1,87 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: webapp
+  namespace: argocd
+  labels:
+    purpose: websites
+
+spec:
+  project: default
+
+  sources:
+    - repoURL: https://john-ghatas.github.io/helmhub
+      chart: webapp
+      targetRevision: 1.1.2
+      helm:
+        values: |
+          image:
+            repository: nginx
+            tag: latest
+            pullPolicy: Always
+
+          service:
+            type: ClusterIP
+            port: 80
+            targetPort: 80
+
+          ingress:
+            enabled: true
+            className: my-ingress-class
+            host: app.sandbox.apps.domain
+            path: /
+            pathType: Prefix
+            annotations:
+              cert-manager.io/cluster-issuer: selfsigned-issuer
+            tls:
+              enabled: true
+              secretName: app-tls
+
+          env:
+            INSTANCE_NAME: "app"
+
+          persistence:
+            enabled: false
+
+          autoscaling:
+            enabled: true
+            minReplicas: 1
+            maxReplicas: 4
+            targetCPUUtilizationPercentage: 70
+
+          podSecurityContext:
+            enabled: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
+
+          containerSecurity:
+            enabled: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          seccompProfile:
+            enabled: true
+            type: RuntimeDefault
+
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "800m"
+              memory: "750Mi"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: webapps
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
