@@ -44,7 +44,7 @@ spec:
       {{- end }}
 
       containers:
-        - name: app
+        - name: {{ .Values.appName | default "app" | lower | replace " " "-" | replace "_" "-" }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 

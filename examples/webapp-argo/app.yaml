@@ -12,9 +12,10 @@ spec:
   sources:
     - repoURL: https://john-ghatas.github.io/helmhub
       chart: webapp
-      targetRevision: 1.1.2
+      targetRevision: 1.1.5
       helm:
         values: |
+          appName: "frontend-sample"
           image:
             repository: nginx
             tag: latest
