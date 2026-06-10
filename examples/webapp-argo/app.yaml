@@ -55,6 +55,17 @@ spec:
             runAsUser: 1000
             fsGroup: 1000
 
+          sealed:
+            enabled: false
+            name: myapp-secret # Make sure this name matches the output in the Sealed Secrets (Web)
+            data:
+              key1: encrypted_val1
+              key2: encrypted_val2
+
+          configmaps:
+            key1: val1
+            key2: val2
+
           containerSecurity:
             enabled: true
             readOnlyRootFilesystem: true

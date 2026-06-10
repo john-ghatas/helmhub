@@ -32,9 +32,14 @@ ingress:
     enabled: true
     secretName: org-ltd-tls
 
-
 configmaps: {}
-sealed: {}
+
+sealed:
+  enabled: false
+  name: myapp-secret # Make sure this name matches the output in the Sealed Secrets (Web)
+  data:
+    key1: encrypted_val1
+    key2: encrypted_val2
 
 podSecurityContext:
   enabled: false
