@@ -2,7 +2,7 @@ apiVersion: v1
 entries:
   helm-base:
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.703477207Z"
+    created: "2026-06-11T01:38:50.370576195Z"
     description: Base application template for all tenant apps
     digest: 8109fecec1fbc1e4e00e5f7f6657f0ae868e1703ac323174bfde517f7a0f28c9
     name: helm-base
@@ -11,7 +11,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.1.0.tgz
     version: 1.1.0
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.703274242Z"
+    created: "2026-06-11T01:38:50.370343853Z"
     description: Base application template for all tenant apps
     digest: 3b862f89b2984d5d86ef0b72e4b892c92ce1fb468b97777daa67b0db46f2a792
     name: helm-base
@@ -20,7 +20,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.29.tgz
     version: 1.0.29
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.703043776Z"
+    created: "2026-06-11T01:38:50.370113065Z"
     description: Base application template for all tenant apps
     digest: fd26d4a381c00bdf42f175337cd81bd33f84e271177420c224b594b9b2d1933d
     name: helm-base
@@ -29,16 +29,16 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.28.tgz
     version: 1.0.28
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.702831036Z"
+    created: "2026-06-11T01:38:50.36986692Z"
     description: Base application template for all tenant apps
-    digest: d6529d40889b405d5451a994b930765ff946c8cf969a932e2a0e73a568c33f09
+    digest: 141c14afb9480482a624cc1add6804e1a574e7e95af42b2c149f68ca3e052f11
     name: helm-base
     type: library
     urls:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.26.tgz
     version: 1.0.26
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.702625337Z"
+    created: "2026-06-11T01:38:50.369626883Z"
     description: Base application template for all tenant apps
     digest: cdc7058785f548f0649840ea403f7f8a72940e046ca26c90a4fc674bc19ac148
     name: helm-base
@@ -47,7 +47,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.25.tgz
     version: 1.0.25
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.702416223Z"
+    created: "2026-06-11T01:38:50.369342595Z"
     description: Base application template for all tenant apps
     digest: 3ba2870cf00f9c1b9204294778f465eff3158e54dcf0225c75a8678f24093b68
     name: helm-base
@@ -56,7 +56,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.23.tgz
     version: 1.0.23
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.702177154Z"
+    created: "2026-06-11T01:38:50.369062901Z"
     description: Base application template for all tenant apps
     digest: 8c389351843d009b04d462428b296a51fb3784b376780f593f7ac0d3b696a7ad
     name: helm-base
@@ -65,7 +65,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.22.tgz
     version: 1.0.22
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.701899167Z"
+    created: "2026-06-11T01:38:50.368422051Z"
     description: Base library template for all tenant apps
     digest: ab3ee97bc38d1d4710ffa9ebb524cc4f9c082941e3a81edb4809ebab594f03a7
     name: helm-base
@@ -74,16 +74,16 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.21.tgz
     version: 1.0.21
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.701644044Z"
+    created: "2026-06-11T01:38:50.367622569Z"
     description: Base library template for all tenant apps
-    digest: 761ee39df44b420549812026073dab8a24590b22312ab33ae19b0d0215cc40e7
+    digest: 0801309d6d469ebec419ef873b355f3e2a886befa7b5a5231f281bcb9756e81f
     name: helm-base
     type: library
     urls:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.20.tgz
     version: 1.0.20
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.701412556Z"
+    created: "2026-06-11T01:38:50.367099679Z"
     description: Base library template for all tenant apps
     digest: c47d84bcc529a292c9abf17d430c4c83888cf738d0ae7eed2cc9a03d32b757c1
     name: helm-base
@@ -92,7 +92,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.19.tgz
     version: 1.0.19
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.701160237Z"
+    created: "2026-06-11T01:38:50.366839594Z"
     description: Base library template for all tenant apps
     digest: 7b267feeed65a7852597e3397a417242c25ca7d834dea84dce431d3968d80749
     name: helm-base
@@ -101,7 +101,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/helm-base-1.0.18.tgz
     version: 1.0.18
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.706402139Z"
+    created: "2026-06-11T01:38:50.3733407Z"
     description: Base library template for all tenant apps
     digest: 9aeec57e8575a44c091cee6152f54d19a4522155d62d444786837aa19ef435f4
     name: helm-base
@@ -111,7 +111,16 @@ entries:
     version: 1.0.16
   webapp:
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.705900346Z"
+    created: "2026-06-11T01:38:50.373135822Z"
+    description: Base application template for all tenant apps
+    digest: 3a4390607ba87a17b03b01a903873cd09c0d221083d335259dbb5800f63bdb20
+    name: webapp
+    type: application
+    urls:
+    - https://john-ghatas.github.io/helmhub/webapp-1.1.8.tgz
+    version: 1.1.8
+  - apiVersion: v2
+    created: "2026-06-11T01:38:50.372801307Z"
     description: Base application template for all tenant apps
     digest: e09a0781de00cac153872e99e046174b81f1b1470e19edc71ab4682f38f023c3
     name: webapp
@@ -120,7 +129,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/webapp-1.1.7.tgz
     version: 1.1.7
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.70537069Z"
+    created: "2026-06-11T01:38:50.372473551Z"
     description: Base application template for all tenant apps
     digest: fe5464d4465482fb946085aa6befab11f8234e0a030bfa0b9b941dd9b84c44da
     name: webapp
@@ -129,7 +138,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/webapp-1.1.6.tgz
     version: 1.1.6
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.705027034Z"
+    created: "2026-06-11T01:38:50.372044949Z"
     description: Base application template for all tenant apps
     digest: c21aef65dfeeee372e518563fd4dd1eb19aff5318e819fb6332f3b07ffc16eb2
     name: webapp
@@ -138,7 +147,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/webapp-1.1.5.tgz
     version: 1.1.5
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.70469105Z"
+    created: "2026-06-11T01:38:50.371741765Z"
     description: Base application template for all tenant apps
     digest: caae3ffd02f834583cd5175288abe4e011292d6322bcf72e05bb078f44ed4fba
     name: webapp
@@ -147,7 +156,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/webapp-1.1.4.tgz
     version: 1.1.4
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.704360002Z"
+    created: "2026-06-11T01:38:50.371435808Z"
     description: Base application template for all tenant apps
     digest: 0882b9a9a627b61958c7d038f14727a4edba885539d613fc1be1e996a00cab55
     name: webapp
@@ -156,7 +165,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/webapp-1.1.3.tgz
     version: 1.1.3
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.704032701Z"
+    created: "2026-06-11T01:38:50.371138411Z"
     description: Base application template for all tenant apps
     digest: 5b3d149d2066f0fd42838fdae6f78d36afcb069015ae2ca78d9be194b97a5734
     name: webapp
@@ -165,7 +174,7 @@ entries:
     - https://john-ghatas.github.io/helmhub/webapp-1.1.2.tgz
     version: 1.1.2
   - apiVersion: v2
-    created: "2026-06-11T01:09:53.703769876Z"
+    created: "2026-06-11T01:38:50.37087709Z"
     description: Base application template for all tenant apps
     digest: d9168fc3f6ae6b255ace42a81b2bfe34f99b6ec3ea6a06b43655ae335324eb82
     name: webapp
@@ -173,4 +182,4 @@ entries:
     urls:
     - https://john-ghatas.github.io/helmhub/webapp-1.1.1.tgz
     version: 1.1.1
-generated: "2026-06-11T01:09:53.700740988Z"
+generated: "2026-06-11T01:38:50.366432784Z"
