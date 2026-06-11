@@ -5,3 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{ include "helm-base.labels" . | nindent 4 }}
+{{- if .Values.imagePullSecrets }}
+imagePullSecrets:
+{{- toYaml .Values.imagePullSecrets | nindent 2 }}
+{{- end }}

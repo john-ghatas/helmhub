@@ -12,7 +12,7 @@ spec:
   sources:
     - repoURL: https://john-ghatas.github.io/helmhub
       chart: webapp
-      targetRevision: 1.1.6
+      targetRevision: 1.1.7
       helm:
         values: |
           appName: "frontend-sample"
@@ -20,6 +20,9 @@ spec:
             repository: nginx
             tag: latest
             pullPolicy: Always
+
+          imagePullSecrets:
+            - name: ghcr-pull-secret
 
           service:
             type: ClusterIP
