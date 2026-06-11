@@ -1,0 +1,51 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "helm-base.fullname" . }}-{{ .Values.appName | default "app" }}-role
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "helm-base.labels" . | nindent 4 }}
+
+rules:
+  - apiGroups: ["", "apps", "networking.k8s.io", "autoscaling", "batch"]
+    resources:
+      - pods
+      - pods/log
+      - services
+      - endpoints
+      - configmaps
+      - deployments
+      - replicasets
+      - statefulsets
+      - daemonsets
+      - ingresses
+      - horizontalpodautoscalers
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: [""]
+    resources:
+      - pods/exec
+    verbs: ["create"]
+
+  - apiGroups: [""]
+    resources:
+      - secrets
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: [""]
+    resources:
+      - persistentvolumeclaims
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+  - apiGroups: [""]
+    resources:
+      - events
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: ["cert-manager.io"]
+    resources:
+      - issuers
+      - certificates
+    verbs: ["get", "list", "watch", "create", "update", "patch"]

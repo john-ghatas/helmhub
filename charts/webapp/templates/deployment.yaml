@@ -17,6 +17,7 @@ spec:
 {{- include "helm-base.selectorLabels" . | nindent 8 }}
 
     spec:
+      serviceAccountName: {{ include "helm-base.fullname" . }}-{{ .Values.appName | default "app" }}-sa
       {{- if .Values.podSecurityContext.enabled }}
       securityContext:
         runAsNonRoot: {{ .Values.podSecurityContext.runAsNonRoot }}

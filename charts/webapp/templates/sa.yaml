@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "helm-base.fullname" . }}-{{ .Values.appName | default "app" }}-sa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "helm-base.labels" . | nindent 4 }}
