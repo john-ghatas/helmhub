@@ -67,7 +67,7 @@ spec:
           {{- end }}
 
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - containerPort: {{ .Values.service.targetPort }}
 
           {{- if .Values.resources }}
           resources:
